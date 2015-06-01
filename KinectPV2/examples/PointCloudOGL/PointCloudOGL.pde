@@ -24,7 +24,6 @@ Copyright (C) 2014  Thomas Sanchez Lengeling.
 import java.nio.FloatBuffer;
 
 import KinectPV2.*;
-import javax.media.opengl.GL2;
 
 private KinectPV2 kinect;
 
@@ -36,6 +35,13 @@ float scaleVal = 260;
 //Distance Threashold
 int maxD = 5000; // 4m
 int minD = 50;  //  1m
+
+
+PGL pgl;
+PShader sh;
+
+int  vertLoc;
+
 
 public void setup() {
   size(1280, 720, P3D);
@@ -49,45 +55,54 @@ public void setup() {
   kinect.setHighThresholdPC(maxD);
 
   kinect.init();
+
+  sh = loadShader("frag.glsl", "vert.glsl");
 }
 
 public void draw() {
   background(0);
 
   image(kinect.getDepthImage(), 0, 0, 320, 240);
+  image(kinect.getPointCloudDepthImage(), 320, 0, 320, 240);
 
-  //Threahold of the point Cloud.
+  translate(width / 2, height / 2, zval);
+  scale(scaleVal, -1 * scaleVal, scaleVal);
+  rotate(a, 0.0f, 1.0f, 0.0f);
+
+  // Threahold of the point Cloud.
   kinect.setLowThresholdPC(minD);
   kinect.setHighThresholdPC(maxD);
 
   FloatBuffer pointCloudBuffer = kinect.getPointCloudDepthPos();
 
-  PJOGL pgl = (PJOGL)beginPGL();
-  GL2 gl2 = pgl.gl.getGL2();
+  pgl = beginPGL();
+  sh.bind();
 
-  gl2.glEnable( GL2.GL_BLEND );
-  gl2.glEnable(GL2.GL_POINT_SMOOTH);      
+  vertLoc = pgl.getAttribLocation(sh.glProgram, "vertex");
 
-  gl2.glEnableClientState(GL2.GL_VERTEX_ARRAY);
-  gl2.glVertexPointer(3, GL2.GL_FLOAT, 0, pointCloudBuffer);
+  pgl.enableVertexAttribArray(vertLoc);
 
-  gl2.glTranslatef(width/2, height/2, zval);
-  gl2.glScalef(scaleVal, -1*scaleVal, scaleVal);
-  gl2.glRotatef(a, 0.0f, 1.0f, 0.0f);
+  int vertData = kinect.WIDTHDepth * kinect.HEIGHTDepth;
 
-  gl2.glDrawArrays(GL2.GL_POINTS, 0, kinect.WIDTHDepth * kinect.HEIGHTDepth);
-  gl2.glDisableClientState(GL2.GL_VERTEX_ARRAY);
-  gl2.glDisable(GL2.GL_BLEND);
+  pgl.vertexAttribPointer(vertLoc, vertData-1, PGL.FLOAT, false, 0, pointCloudBuffer);
+
+  pgl.drawArrays(PGL.POINTS, 0, vertData);
+
+  pgl.disableVertexAttribArray(vertLoc);
+
+  sh.unbind(); 
   endPGL();
 
+
   stroke(255, 0, 0);
-  text(frameRate, 50, height- 50);
+  text(frameRate, 50, height - 50);
+
 }
 
 public void mousePressed() {
 
   println(frameRate);
- // saveFrame();
+  // saveFrame();
 }
 
 public void keyPressed() {
@@ -119,37 +134,24 @@ public void keyPressed() {
   }
 
   if (key == '1') {
-    minD += 0.01;
+    minD += 1;
     println("Change min: "+minD);
   }
 
   if (key == '2') {
-    minD -= 0.01;
+    minD -= 1;
     println("Change min: "+minD);
   }
 
   if (key == '3') {
-    maxD += 0.01;
+    maxD += 1;
     println("Change max: "+maxD);
   }
 
   if (key == '4') {
-    maxD -= 0.01;
+    maxD -= 1;
     println("Change max: "+maxD);
   }
 
-  if (key == '2') {
-    minD -= 0.01;
-    println("Change min: "+minD);
-  }
-
-  if (key == '3') {
-    maxD += 0.01;
-    println("Change max: "+maxD);
-  }
-
-  if (key == '4') {
-    maxD -= 0.01;
-    println("Change max: "+maxD);
-  }
 }
+

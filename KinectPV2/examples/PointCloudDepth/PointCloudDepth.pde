@@ -28,7 +28,7 @@ KinectPV2 kinect;
 
 //Distance Threashold
 int maxD = 5000; // 4m
-int minD = 50;  //  1m
+int minD = 50;  //  50cm
 
 void setup() {
   size(512*2, 424, P3D);
@@ -42,6 +42,7 @@ void setup() {
   kinect.enablePointCloud(true);
 
   kinect.init();
+
 }
 
 void draw() {
@@ -85,4 +86,3 @@ void keyPressed() {
     println("Change max: "+maxD);
   }
 }
-
