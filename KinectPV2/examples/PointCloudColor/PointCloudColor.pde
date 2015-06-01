@@ -41,9 +41,14 @@ public void setup() {
   size(1280, 720, P3D);
 
   kinect = new KinectPV2(this);
+  
+  kinect.enableDepthImg(true);
+  kinect.enableColorImg(true);
+  kinect.enableColorChannel(true);
+    
   // kinect.enableDepthImg(true);
   // kinect.enableColorImg(true);
-  kinect.enablePointCloudColor(true);
+  //kinect.enablePointCloudColor(true);
 
   kinect.init();
 }

@@ -33,8 +33,9 @@ int zval = 50;
 float scaleVal = 260;
 
 //Distance Threashold
-float maxD = 4.0f; //meters
-float minD = 1.0f;
+//Distance Threashold
+int maxD = 5000; // 4m
+int minD = 50;  //  1m
 
 public void setup() {
   size(1280, 720, P3D);
